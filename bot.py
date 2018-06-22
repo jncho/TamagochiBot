@@ -29,11 +29,11 @@ class Main:
 
 	# Metodo ejecutado al recibir el comando /status
 	def status(self,bot,update):
-		bot.send_message(chat_id=update.message.chat_id,text=self.juancho.status())
+		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.status())
 
 
 ######### EJECUCION PRINCIPAL
-updater = Updater(token='')
+updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 

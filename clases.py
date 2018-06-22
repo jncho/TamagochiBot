@@ -53,6 +53,16 @@ class Tamagochi:
 		self.sedflag40 = True
 		self.sedflag60 = True
 
+		self.aburrimientoflag10 = True
+		self.aburrimientoflag20 = True
+		self.aburrimientoflag40 = True
+		self.aburrimientoflag60 = True
+
+		self.suenoflag10 = True
+		self.suenoflag20 = True
+		self.suenoflag40 = True
+		self.suenoflag60 = True
+
 		# Hilo encargado de enviar mensajes del estado del bot al usuario
 		self.thread = Thread(target = self.comprueba_estado_thread)
 		self.thread.start()
@@ -78,10 +88,11 @@ class Tamagochi:
 				return False
 			if (self.decrementa_sed(int(time.time())) == False):
 				return False
+			if (self.decrementa_aburrimiento(int(time.time())) == False):
+				return False
+			if (self.decrementa_sueno(int(time.time())) == False):
+				return False
 
-
-
-			
 
 	# Comprueba el atributo hambre
 	def decrementa_hambre(self,tiempo_actual):
@@ -147,6 +158,72 @@ class Tamagochi:
 				self.sedflag60 = False
 
 			self.tiempoActualSed = tiempo_actual
+
+		return True
+
+	def decrementa_aburrimiento(self,tiempo_actual):
+		
+
+		if (tiempo_actual - self.tiempoActualAburrimiento) > self.intAburrimiento:
+
+			self.nivelAburrimiento -= self.restAburrimiento
+
+			if  self.nivelAburrimiento <= 0:
+				self.muerto = True
+				self.enviar('TU TAMAGOCHI MURIÓ DE ABURRIMIENTO')
+				self.enviar(self.status())
+				return False
+			elif self.nivelAburrimiento < 10 and self.aburrimientoflag10:
+				self.enviar('¡O juegas conmigo o me muero!')
+				self.enviar(self.status())
+				self.aburrimientoflag10 = False
+			elif self.nivelAburrimiento < 20 and self.aburrimientoflag20:
+				self.enviar('¡Me aburro muchísimo!')
+				self.enviar(self.status())
+				self.aburrimientoflag20 = False
+			elif self.nivelAburrimiento < 40 and self.aburrimientoflag40:
+				self.enviar('¡Quiero jugar a algo ya!')
+				self.enviar(self.status())
+				self.aburrimientoflag40 = False
+			elif self.nivelAburrimiento < 60 and self.aburrimientoflag60:
+				self.enviar('Me apetece jugar...')
+				self.enviar(self.status())
+				self.aburrimientoflag60 = False
+
+			self.tiempoActualAburrimiento = tiempo_actual
+
+		return True
+
+	def decrementa_sueno(self,tiempo_actual):
+		
+
+		if (tiempo_actual - self.tiempoActualSueno) > self.intSueno:
+
+			self.nivelSueno -= self.restSueno
+
+			if  self.nivelSueno <= 0:
+				self.muerto = True
+				self.enviar('TU TAMAGOCHI MURIÓ DE SUEÑO')
+				self.enviar(self.status())
+				return False
+			elif self.nivelSueno < 10 and self.suenoflag10:
+				self.enviar('¡O me ACUESTAS o me MUEROO maldita sea!')
+				self.enviar(self.status())
+				self.suenoflag10 = False
+			elif self.nivelSueno < 20 and self.suenoflag20:
+				self.enviar('¡Tengo muchísimo sueño!')
+				self.enviar(self.status())
+				self.suenoflag20 = False
+			elif self.nivelSueno < 40 and self.suenoflag40:
+				self.enviar('¡Quiero acostarme!')
+				self.enviar(self.status())
+				self.suenoflag40 = False
+			elif self.nivelSueno < 60 and self.suenoflag60:
+				self.enviar('Hmmm, empiezo a bostezar...')
+				self.enviar(self.status())
+				self.suenoflag60 = False
+
+			self.tiempoActualSueno = tiempo_actual
 
 		return True
 
