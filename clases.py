@@ -23,6 +23,11 @@ class Tamagochi:
 
 		self.muerto = False
 
+		self.comida = 1000
+		self.agua = 1000
+		self.entretenimiento = 1000
+		self.dormir = 1000
+
 		# Tiempo inicial 
 		self.tiempoActualHambre=int(time.time())
 		self.tiempoActualSed=int(time.time())
@@ -64,6 +69,7 @@ class Tamagochi:
 		text += 'Sed: ' + str(self.nivelSed) + '%\n'
 		text += 'Aburrimiento: ' + str(self.nivelAburrimiento) + '%\n'
 		text += 'Sueño: ' + str(self.nivelSueno) + '%\n'
+		text += 'Tu comida: ' + str(self.comida) + ' unidades\n'
 
 		return text
 
@@ -77,11 +83,7 @@ class Tamagochi:
 			if (self.decrementa_hambre(int(time.time())) == False):
 				return False
 			if (self.decrementa_sed(int(time.time())) == False):
-				return False
-
-
-
-			
+				return False		
 
 	# Comprueba el atributo hambre
 	def decrementa_hambre(self,tiempo_actual):
@@ -124,7 +126,7 @@ class Tamagochi:
 
 			self.nivelSed -= self.restSed
 
-			if  self.nivelSed <= 0:
+			if self.nivelSed <= 0:
 				self.muerto = True
 				self.enviar('TU TAMAGOCHI MURIÓ DE SED')
 				self.enviar(self.status())
@@ -149,6 +151,73 @@ class Tamagochi:
 			self.tiempoActualSed = tiempo_actual
 
 		return True
+
+	def beber(self,unidades):
+
+		if self.agua < unidades:
+			return 'No tienes comida suficiente'
+		elif self.nivelSed + unidades > 100:
+			return 'No puedo comer tanto'
+
+		self.nivelSed += unidades
+		self.agua -= unidades
+		self.enviar(self.status())
+
+		if self.nivelSed >= 10:
+			self.sedflag10 = True
+		elif self.nivelSed >= 20:
+			self.sedflag20 = True
+		elif self.nivelSed >= 40:
+			self.sedflag40 = True
+		elif self.nivelSed >= 60:
+			self.sedflag60 = True
+
+		return '¡Gracias por el agua!'
+
+	def jugar(self,unidades):
+
+		if self.entretenimiento < unidades:
+			return 'No tienes comida suficiente'
+		elif self.nivelAburrimiento + unidades > 100:
+			return 'No puedo comer tanto'
+
+		self.nivelAburrimiento += unidades
+		self.entretenimiento -= unidades
+		self.enviar(self.status())
+
+		if self.nivelAburrimiento >= 10:
+			self.aburrimientoflag10 = True
+		elif self.nivelAburrimiento >= 20:
+			self.aburrimientoflag20 = True
+		elif self.nivelAburrimiento >= 40:
+			self.aburrimientoflag40 = True
+		elif self.nivelAburrimiento >= 60:
+			self.aburrimientoflag60 = True
+
+		return '¡Gracias por jugar conmigo!'
+
+	def dormir(self,unidades):
+
+		if self.dormir < unidades:
+			return 'No tienes comida suficiente'
+		elif self.nivelSueno + unidades > 100:
+			return 'No puedo comer tanto'
+
+		self.nivelSueno += unidades
+		self.dormir -= unidades
+		self.enviar(self.status())
+
+		if self.nivelSueno >= 10:
+			self.suenoflag10 = True
+		elif self.nivelSueno >= 20:
+			self.suenoflag20 = True
+		elif self.nivelSueno >= 40:
+			self.suenoflag40 = True
+		elif self.nivelSueno >= 60:
+			self.suenoflag60 = True
+
+		return '¡Estoy con energías renovadas!'
+
 
 	# El bot envia al chat el texto pasado por argumento
 	def enviar(self,texto):
