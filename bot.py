@@ -33,7 +33,7 @@ class Main:
 
 
 ######### EJECUCION PRINCIPAL
-updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
+updater = Updater(token='')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -41,4 +41,5 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 Main(dispatcher)
 
 # bucle principañ del bot
-updater.start_polling()
+updater.start_polling(clean=True,read_latency=0.5)
+updater.idle()
