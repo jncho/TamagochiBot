@@ -40,6 +40,10 @@ class Main:
 		sleep_handler = CommandHandler('sleep',self.sleep, pass_args=True)
 		self.dispatcher.add_handler(sleep_handler)
 
+		# Manejador del comando /viewtamagochi
+		viewtamagochi_handler = CommandHandler('viewtamagochi',self.view_tamagochi)
+		self.dispatcher.add_handler(viewtamagochi_handler)
+
 	# Metodo ejecutado al recibir el comando /start
 	def start(self,bot,update):
 		bot.send_message(chat_id=update.message.chat_id,text='¡Ha nacido un nuevo tamagochi!')
@@ -54,31 +58,40 @@ class Main:
 		if len(args) != 1:
 			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")	
 			return False
-		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.comer(int(args[0])))
+		self.tamagochi.actualizar_dialogo(self.tamagochi.comer(int(args[0])))
+		
 
 	# Metodo ejecutado al recibir el comando /drink
 	def drink(self,bot,update,args):
 		if len(args) != 1:
 			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
 			return False
-		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.beber(int(args[0])))
+		self.tamagochi.actualizar_dialogo(self.tamagochi.beber(int(args[0])))
 
 	# Metodo ejecutado al recibir el comando /play
 	def play(self,bot,update,args):
 		if len(args) != 1:
 			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
 			return False
-		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.jugar(int(args[0])))
+		self.tamagochi.actualizar_dialogo(self.tamagochi.jugar(int(args[0])))
 
 	# Metodo ejecutado al recibir el comando /sleep
 	def sleep(self,bot,update,args):
 		if len(args) != 1:
 			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
 			return False
-		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.dormir(int(args[0])))
+		self.tamagochi.actualizar_dialogo(self.tamagochi.dormir(int(args[0])))
+
+	def view_tamagochi(self,bot,update):
+		try:
+			bot.delete_message(chat_id=update.message.chat_id,message_id=self.tamagochi.dialogo_tamagochi.message_id)
+			bot.delete_message(chat_id=update.message.chat_id,message_id=self.tamagochi.stats_tamagochi.message_id)
+			self.tamagochi.crear_mensajes_estaticos()
+		except e:
+			self.tamagochi.crear_mensajes_estaticos()
 
 ######### EJECUCION PRINCIPAL
-updater = Updater(token='573394178:AAH4srX3a137jknT3wHQI973SoTjBivAvZE')
+updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 

@@ -3,7 +3,7 @@
 from time import sleep
 from threading import Thread
 import time
-
+import telegram
 # Clase del tamagochi encargada de almacenar los datos y de
 #   generar mensajes cada cierto tiempo de su estado
 class Tamagochi:
@@ -68,21 +68,35 @@ class Tamagochi:
 		self.suenoflag40 = True
 		self.suenoflag60 = True
 
+		self.crear_mensajes_estaticos()
+
 		# Hilo encargado de enviar mensajes del estado del bot al usuario
 		self.thread = Thread(target = self.comprueba_estado_thread)
 		self.thread.start()
 
+
+
+	def crear_mensajes_estaticos(self):
+		self.dialogo_tamagochi = self.enviar("¡Hola amigo!")
+		self.stats_tamagochi = self.enviar(self.status())
+
+	def actualizar_dialogo(self,text):
+		self.dialogo_tamagochi.edit_text(text=text,parse_mode=telegram.ParseMode.MARKDOWN)
+
+	def actualizar_stats(self):
+		self.stats_tamagochi.edit_text(text=self.status(),parse_mode=telegram.ParseMode.MARKDOWN)
+
 	# Muestra el estado de los atributos del tamagochi
 	def status(self):
 		
-		text = 'Hambre: ' + str(self.nivelHambre) + '%\n'
-		text += 'Sed: ' + str(self.nivelSed) + '%\n'
-		text += 'Aburrimiento: ' + str(self.nivelAburrimiento) + '%\n'
-		text += 'Sueño: ' + str(self.nivelSueno) + '%\n\n'
-		text += 'Tu comida: ' + str(self.comida) + ' unidades\n'
-		text += 'Tu agua: ' + str(self.agua) + ' unidades\n'
-		text += 'Tu entretenimiento: ' + str(self.entretenimiento) + ' unidades\n'
-		text += 'Tu descanso: ' + str(self.descanso) + ' unidades\n'
+		text =  '`Hambre:       `*' + str(self.nivelHambre) + '%*\n'
+		text += '`Sed:          `*' + str(self.nivelSed) + '%*\n'
+		text += '`Aburrimiento: `*' + str(self.nivelAburrimiento) + '%*\n'
+		text += '`Sueño:        `*' + str(self.nivelSueno) + '%*\n\n'
+		text += '`Tu comida:          `' + str(self.comida) + ' unidades\n'
+		text += '`Tu agua:            `' + str(self.agua) + ' unidades\n'
+		text += '`Tu entretenimiento: `' + str(self.entretenimiento) + ' unidades\n'
+		text += '`Tu descanso:        `' + str(self.descanso) + ' unidades\n'
 
 		return text
 
@@ -112,24 +126,24 @@ class Tamagochi:
 
 			if  self.nivelHambre <= 0:
 				self.muerto = True
-				self.enviar('TU TAMAGOCHI MURIÓ DE HAMBRE')
-				self.enviar(self.status())
+				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE HAMBRE')
+				self.actualizar_stats()
 				return False
 			elif self.nivelHambre < 10 and self.hambreflag10:
-				self.enviar('¡O me das de comer o me MUEROO maldita sea!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡O me das de comer o me MUEROO maldita sea!')
+				self.actualizar_stats()
 				self.hambreflag10 = False
 			elif self.nivelHambre < 20 and self.hambreflag20:
-				self.enviar('¡Tengo muchísima hambre!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Tengo muchísima hambre!')
+				self.actualizar_stats()
 				self.hambreflag20 = False
 			elif self.nivelHambre < 40 and self.hambreflag40:
-				self.enviar('¡Noto un vacio en mi estómago!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Noto un vacio en mi estómago!')
+				self.actualizar_stats()
 				self.hambreflag40 = False
 			elif self.nivelHambre < 60 and self.hambreflag60:
-				self.enviar('Hmmm, quiero picar algo...')
-				self.enviar(self.status())
+				self.actualizar_dialogo('Hmmm, quiero picar algo...')
+				self.actualizar_stats()
 				self.hambreflag60 = False
 
 			self.tiempoActualHambre = tiempo_actual
@@ -145,24 +159,24 @@ class Tamagochi:
 
 			if self.nivelSed <= 0:
 				self.muerto = True
-				self.enviar('TU TAMAGOCHI MURIÓ DE SED')
-				self.enviar(self.status())
+				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE SED')
+				self.actualizar_stats()
 				return False
 			elif self.nivelSed < 10 and self.sedflag10:
-				self.enviar('¡O me das de beber o me MUEROO maldita sea!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡O me das de beber o me MUEROO maldita sea!')
+				self.actualizar_stats()
 				self.sedflag10 = False
 			elif self.nivelSed < 20 and self.sedflag20:
-				self.enviar('¡Tengo muchísima sed!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Tengo muchísima sed!')
+				self.actualizar_stats()
 				self.sedflag20 = False
 			elif self.nivelSed < 40 and self.sedflag40:
-				self.enviar('¡Noto un vacio en mi paladar!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Noto un vacio en mi paladar!')
+				self.actualizar_stats()
 				self.sedflag40 = False
 			elif self.nivelSed < 60 and self.sedflag60:
-				self.enviar('Hmmm, quiero beber algo...')
-				self.enviar(self.status())
+				self.actualizar_dialogo('Hmmm, quiero beber algo...')
+				self.actualizar_stats()
 				self.sedflag60 = False
 
 			self.tiempoActualSed = tiempo_actual
@@ -178,24 +192,24 @@ class Tamagochi:
 
 			if  self.nivelAburrimiento <= 0:
 				self.muerto = True
-				self.enviar('TU TAMAGOCHI MURIÓ DE ABURRIMIENTO')
-				self.enviar(self.status())
+				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE ABURRIMIENTO')
+				self.actualizar_stats()
 				return False
 			elif self.nivelAburrimiento < 10 and self.aburrimientoflag10:
-				self.enviar('¡O juegas conmigo o me muero!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡O juegas conmigo o me muero!')
+				self.actualizar_stats()
 				self.aburrimientoflag10 = False
 			elif self.nivelAburrimiento < 20 and self.aburrimientoflag20:
-				self.enviar('¡Me aburro muchísimo!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Me aburro muchísimo!')
+				self.actualizar_stats()
 				self.aburrimientoflag20 = False
 			elif self.nivelAburrimiento < 40 and self.aburrimientoflag40:
-				self.enviar('¡Quiero jugar a algo ya!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Quiero jugar a algo ya!')
+				self.actualizar_stats()
 				self.aburrimientoflag40 = False
 			elif self.nivelAburrimiento < 60 and self.aburrimientoflag60:
-				self.enviar('Me apetece jugar...')
-				self.enviar(self.status())
+				self.actualizar_dialogo('Me apetece jugar...')
+				self.actualizar_stats()
 				self.aburrimientoflag60 = False
 
 			self.tiempoActualAburrimiento = tiempo_actual
@@ -211,24 +225,24 @@ class Tamagochi:
 
 			if  self.nivelSueno <= 0:
 				self.muerto = True
-				self.enviar('TU TAMAGOCHI MURIÓ DE SUEÑO')
-				self.enviar(self.status())
+				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE SUEÑO')
+				self.actualizar_stats()
 				return False
 			elif self.nivelSueno < 10 and self.suenoflag10:
-				self.enviar('¡O me ACUESTAS o me MUEROO maldita sea!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡O me ACUESTAS o me MUEROO maldita sea!')
+				self.actualizar_stats()
 				self.suenoflag10 = False
 			elif self.nivelSueno < 20 and self.suenoflag20:
-				self.enviar('¡Tengo muchísimo sueño!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Tengo muchísimo sueño!')
+				self.actualizar_stats()
 				self.suenoflag20 = False
 			elif self.nivelSueno < 40 and self.suenoflag40:
-				self.enviar('¡Quiero acostarme!')
-				self.enviar(self.status())
+				self.actualizar_dialogo('¡Quiero acostarme!')
+				self.actualizar_stats()
 				self.suenoflag40 = False
 			elif self.nivelSueno < 60 and self.suenoflag60:
-				self.enviar('Hmmm, empiezo a bostezar...')
-				self.enviar(self.status())
+				self.actualizar_dialogo('Hmmm, empiezo a bostezar...')
+				self.actualizar_stats()
 				self.suenoflag60 = False
 
 			self.tiempoActualSueno = tiempo_actual
@@ -244,7 +258,7 @@ class Tamagochi:
 
 		self.nivelHambre += unidades
 		self.comida -= unidades
-		self.enviar(self.status())
+		self.actualizar_stats()
 
 		if self.nivelHambre >= 10:
 			self.hambreflag10 = True
@@ -266,7 +280,7 @@ class Tamagochi:
 
 		self.nivelSed += unidades
 		self.agua -= unidades
-		self.enviar(self.status())
+		self.actualizar_stats()
 
 		if self.nivelSed >= 10:
 			self.sedflag10 = True
@@ -288,7 +302,7 @@ class Tamagochi:
 
 		self.nivelAburrimiento += unidades
 		self.entretenimiento -= unidades
-		self.enviar(self.status())
+		self.actualizar_stats()
 
 		if self.nivelAburrimiento >= 10:
 			self.aburrimientoflag10 = True
@@ -310,7 +324,7 @@ class Tamagochi:
 
 		self.nivelSueno += unidades
 		self.descanso -= unidades
-		self.enviar(self.status())
+		self.actualizar_stats()
 
 		if self.nivelSueno >= 10:
 			self.suenoflag10 = True
@@ -325,4 +339,4 @@ class Tamagochi:
 
 	# El bot envia al chat el texto pasado por argumento
 	def enviar(self,texto):
-		self.bot.send_message(chat_id=self.chat_id,text=texto)
+		return self.bot.send_message(chat_id=self.chat_id,parse_mode=telegram.ParseMode.MARKDOWN,text=texto)
