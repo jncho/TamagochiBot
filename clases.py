@@ -68,6 +68,15 @@ class Tamagochi:
 		self.suenoflag40 = True
 		self.suenoflag60 = True
 
+		# Botoneras del juego
+		row1 = [telegram.InlineKeyboardButton(text="Comida",callback_data="comida"), 
+			telegram.InlineKeyboardButton(text="Bebida",callback_data="bebida")]
+		row2 = [telegram.InlineKeyboardButton(text="Jugar",callback_data="jugar"),
+			telegram.InlineKeyboardButton(text="Dormir",callback_data="dormir")]
+		
+		self.menu = telegram.InlineKeyboardMarkup([row1,row2])
+
+		# Mensajes de estado y stats que se actualizaran a cada rato
 		self.crear_mensajes_estaticos()
 
 		# Hilo encargado de enviar mensajes del estado del bot al usuario
@@ -78,13 +87,18 @@ class Tamagochi:
 
 	def crear_mensajes_estaticos(self):
 		self.dialogo_tamagochi = self.enviar("¡Hola amigo!")
-		self.stats_tamagochi = self.enviar(self.status())
+		self.stats_tamagochi = self.enviar(self.status(),botonera=self.menu)
 
 	def actualizar_dialogo(self,text):
-		self.dialogo_tamagochi.edit_text(text=text,parse_mode=telegram.ParseMode.MARKDOWN)
-
+		try:
+			self.dialogo_tamagochi.edit_text(text=text,parse_mode=telegram.ParseMode.MARKDOWN)
+		except Exception:
+			return
 	def actualizar_stats(self):
-		self.stats_tamagochi.edit_text(text=self.status(),parse_mode=telegram.ParseMode.MARKDOWN)
+		try:
+			self.stats_tamagochi.edit_text(text=self.status(),parse_mode=telegram.ParseMode.MARKDOWN,reply_markup=self.menu)
+		except Exception:
+			return
 
 	# Muestra el estado de los atributos del tamagochi
 	def status(self):
@@ -338,5 +352,6 @@ class Tamagochi:
 		return '¡Estoy con energías renovadas!'
 
 	# El bot envia al chat el texto pasado por argumento
-	def enviar(self,texto):
-		return self.bot.send_message(chat_id=self.chat_id,parse_mode=telegram.ParseMode.MARKDOWN,text=texto)
+	def enviar(self,texto,botonera=None):
+		return self.bot.send_message(chat_id=self.chat_id,parse_mode=telegram.ParseMode.MARKDOWN,text=texto
+			,reply_markup=botonera)

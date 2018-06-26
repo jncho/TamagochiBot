@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
 from telegram.ext import Updater
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler,CallbackQueryHandler
 from telegram.ext import MessageHandler,Filters
 import logging
 from clases import Tamagochi
@@ -24,25 +23,13 @@ class Main:
 		status_handler = CommandHandler('status',self.status)
 		self.dispatcher.add_handler(status_handler)
 
-		# Manejador del comando /eat
-		eat_handler = CommandHandler('eat',self.eat, pass_args=True)
-		self.dispatcher.add_handler(eat_handler)
-
-		# Manejador del comando /drink
-		drink_handler = CommandHandler('drink',self.drink, pass_args=True)
-		self.dispatcher.add_handler(drink_handler)
-
-		# Manejador del comando /play
-		play_handler = CommandHandler('play',self.play, pass_args=True)
-		self.dispatcher.add_handler(play_handler)
-
-		# Manejador del comando /sleep
-		sleep_handler = CommandHandler('sleep',self.sleep, pass_args=True)
-		self.dispatcher.add_handler(sleep_handler)
-
 		# Manejador del comando /viewtamagochi
 		viewtamagochi_handler = CommandHandler('viewtamagochi',self.view_tamagochi)
 		self.dispatcher.add_handler(viewtamagochi_handler)
+
+		# Manejador de la botonera del menu
+		menu_handler = CallbackQueryHandler(self.menu_botonera)
+		self.dispatcher.add_handler(menu_handler)
 
 	# Metodo ejecutado al recibir el comando /start
 	def start(self,bot,update):
@@ -53,35 +40,6 @@ class Main:
 	def status(self,bot,update):
 		bot.send_message(chat_id=update.message.chat_id,text=self.tamagochi.status())
 
-	# Metodo ejecutado al recibir el comando /eat
-	def eat(self,bot,update,args):
-		if len(args) != 1:
-			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")	
-			return False
-		self.tamagochi.actualizar_dialogo(self.tamagochi.comer(int(args[0])))
-		
-
-	# Metodo ejecutado al recibir el comando /drink
-	def drink(self,bot,update,args):
-		if len(args) != 1:
-			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
-			return False
-		self.tamagochi.actualizar_dialogo(self.tamagochi.beber(int(args[0])))
-
-	# Metodo ejecutado al recibir el comando /play
-	def play(self,bot,update,args):
-		if len(args) != 1:
-			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
-			return False
-		self.tamagochi.actualizar_dialogo(self.tamagochi.jugar(int(args[0])))
-
-	# Metodo ejecutado al recibir el comando /sleep
-	def sleep(self,bot,update,args):
-		if len(args) != 1:
-			bot.send_message(chat_id=update.message.chat_id,text="Debe introducir un único numero con las unidades de comida")
-			return False
-		self.tamagochi.actualizar_dialogo(self.tamagochi.dormir(int(args[0])))
-
 	def view_tamagochi(self,bot,update):
 		try:
 			bot.delete_message(chat_id=update.message.chat_id,message_id=self.tamagochi.dialogo_tamagochi.message_id)
@@ -89,6 +47,18 @@ class Main:
 			self.tamagochi.crear_mensajes_estaticos()
 		except e:
 			self.tamagochi.crear_mensajes_estaticos()
+
+	def menu_botonera(self,bot,update):
+		if update.callback_query.data == "comida":
+			self.tamagochi.actualizar_dialogo(self.tamagochi.comer(10))
+		elif update.callback_query.data == "bebida":
+			self.tamagochi.actualizar_dialogo(self.tamagochi.beber(10))
+		elif update.callback_query.data == "jugar":
+			self.tamagochi.actualizar_dialogo(self.tamagochi.jugar(10))
+		elif update.callback_query.data == "dormir":
+			self.tamagochi.actualizar_dialogo(self.tamagochi.dormir(10))
+
+		return True
 
 ######### EJECUCION PRINCIPAL
 updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
