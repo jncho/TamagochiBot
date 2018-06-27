@@ -23,10 +23,13 @@ class Tamagochi:
 
 		self.muerto = False
 
-		self.comida = 1000
-		self.agua = 1000
-		self.entretenimiento = 1000
-		self.descanso = 1000
+		# Inventario
+
+		self.inventario = Inventario()
+		self.inventario.add_comida(Comida('Chorizo',20))
+		self.inventario.add_comida(Comida('Lechuga',10))
+		self.inventario.add_bebida(Bebida('Agua',10))
+		self.inventario.add_bebida(Bebida('Nestea',30))
 
 		# Tiempo inicial 
 		self.tiempoActualHambre=int(time.time())
@@ -69,12 +72,13 @@ class Tamagochi:
 		self.suenoflag60 = True
 
 		# Botoneras del juego
-		row1 = [telegram.InlineKeyboardButton(text="Comida",callback_data="comida"), 
-			telegram.InlineKeyboardButton(text="Bebida",callback_data="bebida")]
-		row2 = [telegram.InlineKeyboardButton(text="Jugar",callback_data="jugar"),
-			telegram.InlineKeyboardButton(text="Dormir",callback_data="dormir")]
+		row1 = [telegram.InlineKeyboardButton(text="Comida",callback_data="menu_comida"), 
+			telegram.InlineKeyboardButton(text="Bebida",callback_data="menu_bebida")]
+		row2 = [telegram.InlineKeyboardButton(text="Jugar",callback_data="menu_jugar"),
+			telegram.InlineKeyboardButton(text="Dormir",callback_data="menu_dormir")]
 		
 		self.menu = telegram.InlineKeyboardMarkup([row1,row2])
+		self.menu_actual = self.menu
 
 		# Mensajes de estado y stats que se actualizaran a cada rato
 		self.crear_mensajes_estaticos()
@@ -96,7 +100,7 @@ class Tamagochi:
 			return
 	def actualizar_stats(self):
 		try:
-			self.stats_tamagochi.edit_text(text=self.status(),parse_mode=telegram.ParseMode.MARKDOWN,reply_markup=self.menu)
+			self.stats_tamagochi.edit_text(text=self.status(),parse_mode=telegram.ParseMode.MARKDOWN,reply_markup=self.menu_actual)
 		except Exception:
 			return
 
@@ -107,10 +111,6 @@ class Tamagochi:
 		text += '`Sed:          `*' + str(self.nivelSed) + '%*\n'
 		text += '`Aburrimiento: `*' + str(self.nivelAburrimiento) + '%*\n'
 		text += '`Sueño:        `*' + str(self.nivelSueno) + '%*\n\n'
-		text += '`Tu comida:          `' + str(self.comida) + ' unidades\n'
-		text += '`Tu agua:            `' + str(self.agua) + ' unidades\n'
-		text += '`Tu entretenimiento: `' + str(self.entretenimiento) + ' unidades\n'
-		text += '`Tu descanso:        `' + str(self.descanso) + ' unidades\n'
 
 		return text
 
@@ -265,13 +265,10 @@ class Tamagochi:
 
 	def comer(self,unidades):
 
-		if self.comida < unidades:
-			return 'No tienes comida suficiente'
-		elif self.nivelHambre + unidades > 100:
+		if self.nivelHambre + unidades > 100:
 			return 'No puedo comer tanto'
 
 		self.nivelHambre += unidades
-		self.comida -= unidades
 		self.actualizar_stats()
 
 		if self.nivelHambre >= 10:
@@ -287,13 +284,10 @@ class Tamagochi:
 
 	def beber(self,unidades):
 
-		if self.agua < unidades:
-			return 'No tienes gua suficiente'
-		elif self.nivelSed + unidades > 100:
+		if self.nivelSed + unidades > 100:
 			return 'No puedo beber tanto'
 
 		self.nivelSed += unidades
-		self.agua -= unidades
 		self.actualizar_stats()
 
 		if self.nivelSed >= 10:
@@ -309,13 +303,10 @@ class Tamagochi:
 
 	def jugar(self,unidades):
 
-		if self.entretenimiento < unidades:
-			return 'No tienes entretenimiento suficiente'
-		elif self.nivelAburrimiento + unidades > 100:
+		if self.nivelAburrimiento + unidades > 100:
 			return 'No puedo jugar tanto'
 
 		self.nivelAburrimiento += unidades
-		self.entretenimiento -= unidades
 		self.actualizar_stats()
 
 		if self.nivelAburrimiento >= 10:
@@ -331,13 +322,10 @@ class Tamagochi:
 
 	def dormir(self,unidades):
 
-		if self.descanso < unidades:
-			return 'No tienes descanso suficiente suficiente'
-		elif self.nivelSueno + unidades > 100:
+		if self.nivelSueno + unidades > 100:
 			return 'No puedo dormir tanto'
 
 		self.nivelSueno += unidades
-		self.descanso -= unidades
 		self.actualizar_stats()
 
 		if self.nivelSueno >= 10:
@@ -355,3 +343,51 @@ class Tamagochi:
 	def enviar(self,texto,botonera=None):
 		return self.bot.send_message(chat_id=self.chat_id,parse_mode=telegram.ParseMode.MARKDOWN,text=texto
 			,reply_markup=botonera)
+
+
+class Comida:
+
+	def __init__(self,nombre,valor):
+		self.id = id(self)
+		self.nombre = nombre
+		self.valor = valor
+		
+
+class Bebida:
+
+	def __init__(self,nombre,valor):
+		self.id = id(self)
+		self.nombre = nombre
+		self.valor = valor
+
+class Inventario:
+
+	def __init__(self):
+		self.comidas = list()
+		self.bebidas = list()
+		self.n_comidas = len(self.comidas)
+		self.n_bebidas = len(self.bebidas)
+
+	def add_comida(self,comida):
+		self.comidas.append(comida)
+		self.n_comidas += 1
+
+	def add_bebida(self,bebida):
+		self.bebidas.append(bebida)
+		self.n_bebidas += 1
+
+	def del_comida(self,id_comida):
+		comida = [i for i in self.comidas if i.id == id_comida][0]
+		self.comidas.remove(comida)
+		self.n_comidas -= 1
+
+	def del_bebida(self,id_bebida):
+		bebida = [i for i in self.bebidas if i.id == id_bebida][0]
+		self.bebidas.remove(bebida)
+		self.n_bebidas -= 1
+
+	def get_bebida(self,id_bebida):
+		return [i for i in self.bebidas if i.id == id_bebida][0]
+
+	def get_comida(self,id_comida):
+		return [i for i in self.comidas if i.id == id_comida][0]

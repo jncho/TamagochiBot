@@ -4,6 +4,7 @@ from telegram.ext import CommandHandler,CallbackQueryHandler
 from telegram.ext import MessageHandler,Filters
 import logging
 from clases import Tamagochi
+import telegram
 
 
 # Clase que gestiona las respuestas a los comandos enviados
@@ -28,8 +29,16 @@ class Main:
 		self.dispatcher.add_handler(viewtamagochi_handler)
 
 		# Manejador de la botonera del menu
-		menu_handler = CallbackQueryHandler(self.menu_botonera)
+		menu_handler = CallbackQueryHandler(self.menu_botonera,pattern="menu_.")
 		self.dispatcher.add_handler(menu_handler)
+
+		# Manejador de la botonera de la comida
+		comida_handler = CallbackQueryHandler(self.comida_botonera,pattern="comida_.")
+		self.dispatcher.add_handler(comida_handler)
+
+		# Manejador de la botonera de la bebida
+		bebida_handler = CallbackQueryHandler(self.bebida_botonera,pattern="bebida_.")
+		self.dispatcher.add_handler(bebida_handler)
 
 	# Metodo ejecutado al recibir el comando /start
 	def start(self,bot,update):
@@ -49,16 +58,70 @@ class Main:
 			self.tamagochi.crear_mensajes_estaticos()
 
 	def menu_botonera(self,bot,update):
-		if update.callback_query.data == "comida":
-			self.tamagochi.actualizar_dialogo(self.tamagochi.comer(10))
-		elif update.callback_query.data == "bebida":
-			self.tamagochi.actualizar_dialogo(self.tamagochi.beber(10))
-		elif update.callback_query.data == "jugar":
+		if update.callback_query.data == "menu_comida":
+			rows = list()
+			for c in self.tamagochi.inventario.comidas:
+				row = list()
+				row.append(telegram.InlineKeyboardButton(text=c.nombre+" ("+str(c.valor)+"%)",callback_data="comida_"+str(c.id)))
+				rows.append(row)
+			rows.append([telegram.InlineKeyboardButton(text="Menu",callback_data="comida_menu")])
+			menu_comida = telegram.InlineKeyboardMarkup(rows)
+			self.tamagochi.menu_actual = menu_comida
+
+			try:
+				self.tamagochi.stats_tamagochi.edit_text(text=self.tamagochi.status(),parse_mode=telegram.ParseMode.MARKDOWN
+					,reply_markup=telegram.InlineKeyboardMarkup(menu_comida))
+			except Exception:
+				return
+			#self.tamagochi.actualizar_dialogo(self.tamagochi.comer(10))
+		elif update.callback_query.data == "menu_bebida":
+			rows = list()
+			for b in self.tamagochi.inventario.bebidas:
+				row = list()
+				row.append(telegram.InlineKeyboardButton(text=b.nombre+" ("+str(b.valor)+"%)",callback_data="bebida_"+str(b.id)))
+				rows.append(row)
+			rows.append([telegram.InlineKeyboardButton(text="Menu",callback_data="bebida_menu")])
+			menu_bebida = telegram.InlineKeyboardMarkup(rows)
+			self.tamagochi.menu_actual = menu_bebida
+
+			try:
+				self.tamagochi.stats_tamagochi.edit_text(text=self.tamagochi.status(),parse_mode=telegram.ParseMode.MARKDOWN
+					,reply_markup=telegram.InlineKeyboardMarkup(menu_bebida))
+			except Exception:
+				return
+
+
+			#self.tamagochi.actualizar_dialogo(self.tamagochi.beber(10))
+		elif update.callback_query.data == "menu_jugar":
 			self.tamagochi.actualizar_dialogo(self.tamagochi.jugar(10))
-		elif update.callback_query.data == "dormir":
+		elif update.callback_query.data == "menu_dormir":
 			self.tamagochi.actualizar_dialogo(self.tamagochi.dormir(10))
 
 		return True
+
+	def comida_botonera(self,bot,update):
+
+		if (update.callback_query.data == "comida_menu"):
+			self.tamagochi.menu_actual = self.tamagochi.menu
+			self.tamagochi.actualizar_stats()
+		elif (update.callback_query.data[:6] == "comida"):
+			id_comida=int(update.callback_query.data.split('_')[1])
+			comida = self.tamagochi.inventario.get_comida(id_comida)
+			self.tamagochi.inventario.del_comida(id_comida)
+			self.tamagochi.menu_actual.inline_keyboard.remove([br for br in self.tamagochi.menu_actual.inline_keyboard if br[0].callback_data == update.callback_query.data][0])
+			self.tamagochi.actualizar_dialogo(self.tamagochi.comer(comida.valor))
+	
+	def bebida_botonera(self,bot,update):
+
+		if (update.callback_query.data == "bebida_menu"):
+			self.tamagochi.menu_actual = self.tamagochi.menu
+			self.tamagochi.actualizar_stats()
+		elif (update.callback_query.data[:6] == "bebida"):
+			id_bebida=int(update.callback_query.data.split('_')[1])
+			bebida = self.tamagochi.inventario.get_bebida(id_bebida)
+			self.tamagochi.inventario.del_bebida(id_bebida)
+			self.tamagochi.menu_actual.inline_keyboard.remove([br for br in self.tamagochi.menu_actual.inline_keyboard if br[0].callback_data == update.callback_query.data][0])
+			self.tamagochi.actualizar_dialogo(self.tamagochi.beber(bebida.valor))
 
 ######### EJECUCION PRINCIPAL
 updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
