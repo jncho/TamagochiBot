@@ -140,6 +140,7 @@ class Tamagochi:
 
 			if  self.nivelHambre <= 0:
 				self.muerto = True
+				self.nivelHambre = 0
 				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE HAMBRE')
 				self.actualizar_stats()
 				return False
@@ -173,6 +174,7 @@ class Tamagochi:
 
 			if self.nivelSed <= 0:
 				self.muerto = True
+				self.nivelSed = 0
 				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE SED')
 				self.actualizar_stats()
 				return False
@@ -206,6 +208,7 @@ class Tamagochi:
 
 			if  self.nivelAburrimiento <= 0:
 				self.muerto = True
+				self.nivelAburrimiento = 0
 				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE ABURRIMIENTO')
 				self.actualizar_stats()
 				return False
@@ -239,6 +242,7 @@ class Tamagochi:
 
 			if  self.nivelSueno <= 0:
 				self.muerto = True
+				self.nivelSueno = 0
 				self.actualizar_dialogo('TU TAMAGOCHI MURIÓ DE SUEÑO')
 				self.actualizar_stats()
 				return False

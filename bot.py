@@ -97,6 +97,8 @@ class Main:
 		elif update.callback_query.data == "menu_dormir":
 			self.tamagochi.actualizar_dialogo(self.tamagochi.dormir(10))
 
+		bot.answer_callback_query(callback_query_id=update.callback_query.id)
+
 		return True
 
 	def comida_botonera(self,bot,update):
@@ -110,6 +112,10 @@ class Main:
 			self.tamagochi.inventario.del_comida(id_comida)
 			self.tamagochi.menu_actual.inline_keyboard.remove([br for br in self.tamagochi.menu_actual.inline_keyboard if br[0].callback_data == update.callback_query.data][0])
 			self.tamagochi.actualizar_dialogo(self.tamagochi.comer(comida.valor))
+
+		bot.answer_callback_query(callback_query_id=update.callback_query.id)
+
+		return True
 	
 	def bebida_botonera(self,bot,update):
 
@@ -122,6 +128,10 @@ class Main:
 			self.tamagochi.inventario.del_bebida(id_bebida)
 			self.tamagochi.menu_actual.inline_keyboard.remove([br for br in self.tamagochi.menu_actual.inline_keyboard if br[0].callback_data == update.callback_query.data][0])
 			self.tamagochi.actualizar_dialogo(self.tamagochi.beber(bebida.valor))
+
+		bot.answer_callback_query(callback_query_id=update.callback_query.id)
+
+		return True
 
 ######### EJECUCION PRINCIPAL
 updater = Updater(token='502745914:AAEM0dsBQLS4oaCmH-G7PdtChI5XUc1axW0')
