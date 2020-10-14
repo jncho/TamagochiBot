@@ -5,7 +5,7 @@ Con TamagochiBot podrás interactuar con una mascota virtual al que tendrás que
 
 ## Objetivos
 - Aprender a usar la librería python-telegram-bot para la creación de bots en telegram con python.
-- Estudiar las opciones de interacción que pone a disposición telegram con su API REST.
+- Estudiar las opciones de interacción con el usuario que pone a disposición telegram con su API REST.
 - Probar la integración de los juegos hechos en HTML5 con telegram a través de un bot.
 - Aprender a usar el motor de videojuegos PHASER para la creación de los minijuegos.
 
